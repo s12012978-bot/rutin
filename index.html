@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Günlük Rutinlerim</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F2EE;
+    --surface: #FFFFFF;
+    --text: #1A1916;
+    --muted: #9B9690;
+    --accent: #2D2926;
+    --tag-morning: #F4E4C1;
+    --tag-sport: #D4EAD0;
+    --tag-food: #FAD5C8;
+    --tag-night: #D6D0F0;
+    --tag-work: #C8E4F5;
+    --tag-personal: #F5D5E8;
+    --border: #E8E4DF;
+    --done-bg: #F0F0EE;
+    --progress: #2D2926;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { font-style: italic; color: var(--muted); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .date-display {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .streak-badge {
+    background: var(--text);
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* PROGRESS OVERVIEW */
+  .overview {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .overview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: transform 0.2s;
+  }
+
+  .overview-card:hover { transform: translateY(-2px); }
+
+  .overview-card .label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .overview-card .value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .overview-card .sub {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* PROGRESS BAR */
+  .progress-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .progress-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+  }
+
+  .progress-pct {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .progress-bar-bg {
+    background: var(--border);
+    height: 6px;
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    background: var(--progress);
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* SECTIONS */
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title .section-icon {
+    font-size: 18px;
+  }
+
+  .routines-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  /* ROUTINE ITEM */
+  .routine-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    animation: fadeInUp 0.3s ease both;
+  }
+
+  .routine-item:hover {
+    border-color: #ccc;
+    transform: translateX(3px);
+  }
+
+  .routine-item.done {
+    background: var(--done-bg);
+    border-color: var(--border);
+  }
+
+  .routine-item.done .routine-name {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  .check-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 11px;
+    color: white;
+  }
+
+  .routine-item.done .check-circle {
+    background: var(--text);
+    border-color: var(--text);
+  }
+
+  .routine-info { flex: 1; }
+
+  .routine-name {
+    font-size: 15px;
+    font-weight: 400;
+    margin-bottom: 2px;
+    transition: color 0.2s;
+  }
+
+  .routine-meta {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tag {
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .tag-morning { background: var(--tag-morning); color: #8B6914; }
+  .tag-sport   { background: var(--tag-sport);   color: #2D6B27; }
+  .tag-food    { background: var(--tag-food);     color: #9B3D28; }
+  .tag-night   { background: var(--tag-night);    color: #4A3D9B; }
+  .tag-work    { background: var(--tag-work);     color: #1A5E82; }
+  .tag-personal{ background: var(--tag-personal); color: #8B2D6B; }
+
+  .routine-time {
+    font-size: 12px;
+    color: var(--muted);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ADD FORM */
+  .add-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 32px;
+  }
+
+  .add-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .form-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--text); }
+
+  .form-select {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .form-select:focus { border-color: var(--text); }
+
+  .form-time {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-time:focus { border-color: var(--text); }
+
+  .btn-add {
+    padding: 12px 24px;
+    background: var(--text);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-add:hover { opacity: 0.8; }
+
+  /* DELETE btn */
+  .btn-delete {
+    background: none;
+    border: none;
+    color: var(--border);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.2s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .btn-delete:hover { color: #E05C5C; }
+
+  /* WEEKLY DOTS */
+  .weekly-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .weekly-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .weekly-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+  }
+
+  .day-col { text-align: center; }
+
+  .day-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .day-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin: 0 auto 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .day-dot.today {
+    border-color: var(--text);
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .day-dot.past-full {
+    background: var(--text);
+    border-color: var(--text);
+    color: white;
+  }
+
+  .day-dot.past-partial {
+    background: #E0DDD8;
+    border-color: #E0DDD8;
+    color: var(--muted);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes checkPop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+
+  .pop { animation: checkPop 0.25s ease; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 32px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* RESET BUTTON */
+  .reset-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reset-btn:hover { border-color: var(--text); color: var(--text); }
+
+  @media (max-width: 600px) {
+    header { padding: 16px 20px; }
+    .container { padding: 24px 16px 60px; }
+    .overview { grid-template-columns: 1fr 1fr; }
+    .overview-card:last-child { grid-column: span 2; }
+    .form-row { flex-direction: column; }
+    .weekly-grid { gap: 4px; }
+    .day-dot { width: 26px; height: 26px; font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Günlük <span>Rutinlerim</span></div>
+  <div class="header-right">
+    <span class="date-display" id="headerDate"></span>
+    <div class="streak-badge">🔥 <span id="streakCount">0</span> gün seri</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- OVERVIEW CARDS -->
+  <div class="overview">
+    <div class="overview-card">
+      <div class="label">Bugün</div>
+      <div class="value" id="todayDone">0</div>
+      <div class="sub">rutin tamamlandı</div>
+    </div>
+    <div class="overview-card">
+      <div class="label">Toplam</div>
+      <div class="value" id="totalRoutines">0</div>
+      <div class="sub">rutin var</div>
+    </div>
+    <div class="overview-card">
+      <div class="label">Bu Hafta</div>
+      <div class="value" id="weekScore">—</div>
+      <div class="sub">ortalama tamamlanma</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <div class="progress-title">Bugünkü İlerleme</div>
+      <div class="progress-pct" id="progressPct">0%</div>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- MORNING -->
+  <div class="section-title"><span class="section-icon">🌅</span> Sabah Rutini</div>
+  <div class="routines-list" id="list-morning"></div>
+
+  <!-- SPORT -->
+  <div class="section-title"><span class="section-icon">💪</span> Egzersiz & Spor</div>
+  <div class="routines-list" id="list-sport"></div>
+
+  <!-- FOOD -->
+  <div class="section-title"><span class="section-icon">🥗</span> Yemek & Beslenme</div>
+  <div class="routines-list" id="list-food"></div>
+
+  <!-- WORK -->
+  <div class="section-title"><span class="section-icon">💼</span> İş & Odak</div>
+  <div class="routines-list" id="list-work"></div>
+
+  <!-- PERSONAL -->
+  <div class="section-title"><span class="section-icon">✨</span> Kişisel Gelişim</div>
+  <div class="routines-list" id="list-personal"></div>
+
+  <!-- NIGHT -->
+  <div class="section-title"><span class="section-icon">🌙</span> Gece Rutini</div>
+  <div class="routines-list" id="list-night"></div>
+
+  <!-- ADD ROUTINE -->
+  <div class="add-section">
+    <div class="add-title">Yeni Rutin Ekle</div>
+    <div class="form-row">
+      <input type="text" class="form-input" id="routineInput" placeholder="Rutin adı..." />
+      <select class="form-select" id="categorySelect">
+        <option value="morning">🌅 Sabah</option>
+        <option value="sport">💪 Spor</option>
+        <option value="food">🥗 Yemek</option>
+        <option value="work">💼 İş</option>
+        <option value="personal">✨ Kişisel</option>
+        <option value="night">🌙 Gece</option>
+      </select>
+      <input type="time" class="form-time" id="timeInput" value="08:00" />
+      <button class="btn-add" onclick="addRoutine()">Ekle</button>
+    </div>
+  </div>
+
+  <!-- WEEKLY VIEW -->
+  <div class="weekly-section">
+    <div class="weekly-title">Bu Haftanın Özeti</div>
+    <div class="weekly-grid" id="weeklyGrid"></div>
+  </div>
+
+</div>
+
+<script>
+  const DAYS_TR = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+  const TODAY_KEY = new Date().toISOString().split('T')[0];
+
+  function getStorage() {
+    try { return JSON.parse(localStorage.getItem('rutinler_v2') || '{}'); } catch { return {}; }
+  }
+
+  function saveStorage(data) {
+    localStorage.setItem('rutinler_v2', JSON.stringify(data));
+  }
+
+  function getDefaultRoutines() {
+    return [
+      { id: 'r1', name: 'Erken uyan (06:30)', category: 'morning', time: '06:30' },
+      { id: 'r2', name: 'Soğuk duş al', category: 'morning', time: '06:45' },
+      { id: 'r3', name: 'Kahve veya çay yap', category: 'morning', time: '07:00' },
+      { id: 'r4', name: '30 dk yürüyüş', category: 'sport', time: '07:30' },
+      { id: 'r5', name: 'Bol su iç (2L)', category: 'food', time: '08:00' },
+      { id: 'r6', name: 'Sağlıklı kahvaltı', category: 'food', time: '08:15' },
+      { id: 'r7', name: 'Günlük hedefler belirle', category: 'work', time: '09:00' },
+      { id: 'r8', name: 'Derin çalışma bloğu', category: 'work', time: '10:00' },
+      { id: 'r9', name: '10 dk meditasyon', category: 'personal', time: '12:30' },
+      { id: 'r10', name: 'Kitap oku (20 sf)', category: 'personal', time: '21:00' },
+      { id: 'r11', name: 'Günlük yaz', category: 'night', time: '22:00' },
+      { id: 'r12', name: 'Ekranları kapat (22:30)', category: 'night', time: '22:30' },
+    ];
+  }
+
+  let store = getStorage();
+  if (!store.routines) {
+    store.routines = getDefaultRoutines();
+    store.done = {}; // { 'YYYY-MM-DD': [ids] }
+    store.streak = 0;
+    saveStorage(store);
+  }
+
+  function getTodayDone() {
+    return store.done[TODAY_KEY] || [];
+  }
+
+  function toggleDone(id) {
+    if (!store.done[TODAY_KEY]) store.done[TODAY_KEY] = [];
+    const idx = store.done[TODAY_KEY].indexOf(id);
+    if (idx === -1) store.done[TODAY_KEY].push(id);
+    else store.done[TODAY_KEY].splice(idx, 1);
+    saveStorage(store);
+    renderAll();
+  }
+
+  function addRoutine() {
+    const input = document.getElementById('routineInput');
+    const cat = document.getElementById('categorySelect').value;
+    const time = document.getElementById('timeInput').value;
+    const name = input.value.trim();
+    if (!name) { input.focus(); return; }
+    const newR = { id: 'r' + Date.now(), name, category: cat, time };
+    store.routines.push(newR);
+    saveStorage(store);
+    input.value = '';
+    renderAll();
+  }
+
+  function deleteRoutine(id) {
+    store.routines = store.routines.filter(r => r.id !== id);
+    for (const day in store.done) {
+      store.done[day] = store.done[day].filter(d => d !== id);
+    }
+    saveStorage(store);
+    renderAll();
+  }
+
+  function renderSection(category, listId) {
+    const list = document.getElementById(listId);
+    const routines = store.routines.filter(r => r.category === category);
+    const todayDone = getTodayDone();
+
+    if (routines.length === 0) {
+      list.innerHTML = `<div class="empty-state">Henüz rutin yok. Aşağıdan ekleyebilirsin.</div>`;
+      return;
+    }
+
+    const sorted = [...routines].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+
+    list.innerHTML = sorted.map(r => {
+      const done = todayDone.includes(r.id);
+      const tagClass = `tag-${category}`;
+      const tagLabel = { morning: 'Sabah', sport: 'Spor', food: 'Yemek', work: 'İş', personal: 'Kişisel', night: 'Gece' }[category];
+      return `
+        <div class="routine-item ${done ? 'done' : ''}" onclick="toggleDone('${r.id}')" id="item-${r.id}">
+          <div class="check-circle">${done ? '✓' : ''}</div>
+          <div class="routine-info">
+            <div class="routine-name">${r.name}</div>
+            <div class="routine-meta">
+              <span class="tag ${tagClass}">${tagLabel}</span>
+              ${r.time ? r.time : ''}
+            </div>
+          </div>
+          <span class="routine-time">${done ? '✅' : ''}</span>
+          <button class="btn-delete" onclick="event.stopPropagation(); deleteRoutine('${r.id}')" title="Sil">×</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderProgress() {
+    const total = store.routines.length;
+    const done = getTodayDone().length;
+    const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+
+    document.getElementById('todayDone').textContent = done;
+    document.getElementById('totalRoutines').textContent = total;
+    document.getElementById('progressPct').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  function renderWeekly() {
+    const grid = document.getElementById('weeklyGrid');
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sun
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - dayOfWeek);
+
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startOfWeek);
+      d.setDate(startOfWeek.getDate() + i);
+      const key = d.toISOString().split('T')[0];
+      const label = DAYS_TR[d.getDay()];
+      const num = d.getDate();
+      const isToday = key === TODAY_KEY;
+      const isFuture = d > today && !isToday;
+
+      let dotClass = '';
+      let dotContent = num;
+      if (isToday) {
+        dotClass = 'today';
+      } else if (!isFuture) {
+        const doneCnt = (store.done[key] || []).length;
+        const total = store.routines.length;
+        if (total > 0 && doneCnt === total) dotClass = 'past-full';
+        else if (doneCnt > 0) dotClass = 'past-partial';
+      }
+
+      html += `
+        <div class="day-col">
+          <div class="day-label">${label}</div>
+          <div class="day-dot ${dotClass}">${dotContent}</div>
+        </div>
+      `;
+    }
+    grid.innerHTML = html;
+
+    // Week score
+    let totalDays = 0, totalPct = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(startOfWeek);
+      d.setDate(startOfWeek.getDate() + i);
+      if (d > today) break;
+      const key = d.toISOString().split('T')[0];
+      const doneCnt = (store.done[key] || []).length;
+      const total = store.routines.length;
+      if (total > 0) {
+        totalPct += Math.round((doneCnt / total) * 100);
+        totalDays++;
+      }
+    }
+    const avg = totalDays > 0 ? Math.round(totalPct / totalDays) + '%' : '—';
+    document.getElementById('weekScore').textContent = avg;
+  }
+
+  function renderHeader() {
+    const now = new Date();
+    const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('headerDate').textContent = now.toLocaleDateString('tr-TR', opts);
+
+    // Streak calc
+    let streak = 0;
+    const d = new Date();
+    while (true) {
+      const key = d.toISOString().split('T')[0];
+      const done = (store.done[key] || []).length;
+      const total = store.routines.length;
+      if (total === 0) break;
+      if (done >= Math.ceil(total * 0.5)) { streak++; d.setDate(d.getDate() - 1); }
+      else break;
+    }
+    document.getElementById('streakCount').textContent = streak;
+  }
+
+  function renderAll() {
+    renderSection('morning', 'list-morning');
+    renderSection('sport', 'list-sport');
+    renderSection('food', 'list-food');
+    renderSection('work', 'list-work');
+    renderSection('personal', 'list-personal');
+    renderSection('night', 'list-night');
+    renderProgress();
+    renderWeekly();
+    renderHeader();
+  }
+
+  document.getElementById('routineInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addRoutine();
+  });
+
+  renderAll();
+</script>
+</body>
+</html>
